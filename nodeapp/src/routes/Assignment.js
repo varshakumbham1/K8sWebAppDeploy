@@ -4,11 +4,6 @@ const {sequelize, User, Assignment, Submission} = require('../database/index');
 const { authenticate, getCredentials } = require('../../auth')
 const logger = require("../logging/applog")
 require('dotenv').config();
-const topic_arn = process.env.SNS_TOPIC_ARN 
-const region = process.env.AWS_REGION
-const AWS = require('aws-sdk');
-AWS.config.update({ region: region });
-const sns = new AWS.SNS();
 
 router.post('/', authenticate ,async (req, res) => {
     try {
@@ -206,22 +201,6 @@ router.post('/:assignmentId/submission', authenticate, async (req, res) => {
         const submissionResponse = {...submission.toJSON()}
         const user_email = user.email;
         logger.info(`Assignment Submitted successfully with id: ${submissionResponse.submission_id}`);
-        const snsMessage = {
-          user_email: user_email,
-          submission_url: submissionResponse.submission_url,
-          count_of_attempts: count_of_attempts,
-        }
-        const snsParams = {
-          Message: JSON.stringify(snsMessage),
-          TopicArn: topic_arn,
-        };
-        sns.publish(snsParams, (err, data) => {
-          if (err) {
-            logger.error(`Error publishing message to SNS: ${err}`);
-          } else {
-            logger.info(`Message published to SNS with messageId: ${data.MessageId}`);
-          }
-        });
         return res.status(201).send(submissionResponse);
       })
       .catch((error) => {
