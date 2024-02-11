@@ -1,5 +1,5 @@
 const express = require('express')
-const {sequelize, createDatabase, syncDatabase, User, Assignment, Submission} = require('./src/database/index')
+const {sequelize, syncDatabase, connectToDatabase, User, Assignment, Submission} = require('./src/database/index')
 const { authenticate, getCredentials } = require('./auth')
 const assignmentRouter = require('./src/routes/Assignment');
 const app = express()
@@ -11,7 +11,7 @@ const statsd = require('./src/metrics/metrics')
 app.use(express.json());
 (async () => {
     try {
-      await createDatabase();
+      await connectToDatabase();
       await sequelize.sync({ alter: true });
       await insert_row();
       app.listen(port, () => {

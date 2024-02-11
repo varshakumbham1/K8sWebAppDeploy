@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  db:
+    image: "mysql:latest"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    restart: always
+  web:
+    build: .
+    environment:
+      PORT: 3000
+      DB_NAME: example_db
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_DIALECT: mysql
+      CSV_FILE: Users.csv
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:mysnstopic
+      AWS_REGION: us-east-1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
